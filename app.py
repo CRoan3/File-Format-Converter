@@ -33,6 +33,8 @@ def to_json(df, tgt_base_dir, ds_name, file_name):
 def file_converter(src_base_dir,  tgt_base_dir, ds_name):
     schemas = json.load(open(f'{src_base_dir}/schemas.json')) #reads content of schemas in dict called schemas
     files = glob.glob(f'{src_base_dir}/{ds_name}/part-*') #gives source file names, the * chooses all files that match the pattern
+    if len(files) == 0: #if no files are found
+        raise NameError(f'No files found for {ds_name}')
 
     for file in files:
         print(f'Processing {file}')
@@ -49,8 +51,13 @@ def process_files(ds_names=None):
     if not ds_names: #if ds_names = None, then we are getting the dataset names into a list using schemas.keys. If no arguments are passed, it will process all datasets
         ds_names = schemas.keys()
     for ds_name in ds_names: #is ds_names exists, it will process the datasets in that list
-        print(f'Processing {ds_name}')
-        file_converter(src_base_dir, tgt_base_dir, ds_name)
+        try:
+            print(f'Processing {ds_name}')
+            file_converter(src_base_dir, tgt_base_dir, ds_name)
+        except NameError as ne:
+            print(ne)
+            print(f'Error Processing {ds_name}')
+            pass
 
 if __name__ == '__main__':  #only runs when executed as a script
     if len(sys.argv) == 2: #program file name + whatever argument = 2
